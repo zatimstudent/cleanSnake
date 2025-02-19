@@ -3,7 +3,7 @@ namespace Snake;
 public class SnakeGame
 {
     private readonly GameBoard _board;
-    private readonly SerpentHead _head;
+    private readonly SnakeHead _head;
     private readonly List<int> _bodyXPositions;
     private readonly List<int> _bodyYPositions;
     private Position _berry;
@@ -15,7 +15,7 @@ public class SnakeGame
     public SnakeGame(int width, int height)
     {
         _board = new GameBoard(width, height);
-        _head = new SerpentHead
+        _head = new SnakeHead
         {
             X = width / 2,
             Y = height / 2,
@@ -74,11 +74,15 @@ public class SnakeGame
 
     private void UpdateSnakeBody()
     {
-        if (_bodyXPositions.Contains(_head.X) && _bodyYPositions.Contains(_head.Y))
+        for (int i = 0; i < _bodyXPositions.Count; i++)
         {
-            EndGame("Snake collided with itself.");
-            return;
+            if (_bodyXPositions[i] == _head.X && _bodyYPositions[i] == _head.Y)
+            {
+                EndGame("Snake collided with itself.");
+                return;
+            }
         }
+
 
         _bodyXPositions.Add(_head.X);
         _bodyYPositions.Add(_head.Y);

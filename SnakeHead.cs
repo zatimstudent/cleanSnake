@@ -1,6 +1,6 @@
 namespace Snake;
 
-public class SerpentHead : Position
+public class SnakeHead : Position
 {
     public ConsoleColor Color { get; set; }
 }
