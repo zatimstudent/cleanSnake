@@ -7,12 +7,27 @@ namespace Snake
 {
     class Program
     {
+        // Define an enum for directions
+        enum Direction
+        {
+            UP,
+            DOWN,
+            LEFT,
+            RIGHT
+        }
+
+        // Define an enum for game states
+        enum GameState
+        {
+            Running,
+            Over
+        }
+
         static void Main(string[] args)
         {
             int screenWidth = Console.WindowWidth;
             int screenHeight = Console.WindowHeight;
             int score = 5;
-            int gameOver = 0;
             Random random = new Random();
 
             // Initialize Snake's Head
@@ -23,7 +38,7 @@ namespace Snake
                 Color = ConsoleColor.Red
             };
 
-            string direction = "RIGHT";
+            Direction direction = Direction.RIGHT;
             List<int> snakeXPositions = new List<int>();
             List<int> snakeYPositions = new List<int>();
             int berryX = random.Next(1, screenWidth - 1);
@@ -31,8 +46,11 @@ namespace Snake
 
             DateTime lastMovementTime = DateTime.Now;
 
+            // Initialize game state
+            GameState gameState = GameState.Running;
+
             // Main game loop
-            while (true)
+            while (gameState == GameState.Running)
             {
                 Console.Clear();
 
@@ -44,7 +62,7 @@ namespace Snake
                 {
                     Console.SetCursorPosition(0, 1);
                     Console.WriteLine("Game Over: Snake hit the border.");
-                    gameOver = 1;
+                    gameState = GameState.Over; // Update game state
                     break;  // End the game loop
                 }
 
@@ -62,7 +80,7 @@ namespace Snake
                 // **Collision detection**: Check if the snake collides with itself before adding the new head
                 if (snakeXPositions.Contains(head.X) && snakeYPositions.Contains(head.Y))
                 {
-                    gameOver = 1;
+                    gameState = GameState.Over; // Update game state
                     break;  // End the game loop
                 }
 
@@ -99,10 +117,13 @@ namespace Snake
             }
 
             // Display the final score when the game ends
-            Console.SetCursorPosition(screenWidth / 5, screenHeight / 2);
-            Console.WriteLine("Game Over. Score: " + score);
-            Console.SetCursorPosition(screenWidth / 5, screenHeight / 2 + 1);
-            Console.WriteLine("Exiting the game...");
+            if (gameState == GameState.Over)
+            {
+                Console.SetCursorPosition(screenWidth / 5, screenHeight / 2);
+                Console.WriteLine("Game Over. Score: " + score);
+                Console.SetCursorPosition(screenWidth / 5, screenHeight / 2 + 1);
+                Console.WriteLine("Exiting the game...");
+            }
         }
 
         // Class representing the Snake's Head
@@ -150,46 +171,46 @@ namespace Snake
         }
 
         // Function to handle user input for snake movement
-        static void HandleUserInput(ref string direction)
+        static void HandleUserInput(ref Direction direction)
         {
             if (Console.KeyAvailable)
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
-                if (key.Key.Equals(ConsoleKey.UpArrow) && direction != "DOWN")
+                if (key.Key.Equals(ConsoleKey.UpArrow) && direction != Direction.DOWN)
                 {
-                    direction = "UP";
+                    direction = Direction.UP;
                 }
-                if (key.Key.Equals(ConsoleKey.DownArrow) && direction != "UP")
+                if (key.Key.Equals(ConsoleKey.DownArrow) && direction != Direction.UP)
                 {
-                    direction = "DOWN";
+                    direction = Direction.DOWN;
                 }
-                if (key.Key.Equals(ConsoleKey.LeftArrow) && direction != "RIGHT")
+                if (key.Key.Equals(ConsoleKey.LeftArrow) && direction != Direction.RIGHT)
                 {
-                    direction = "LEFT";
+                    direction = Direction.LEFT;
                 }
-                if (key.Key.Equals(ConsoleKey.RightArrow) && direction != "LEFT")
+                if (key.Key.Equals(ConsoleKey.RightArrow) && direction != Direction.LEFT)
                 {
-                    direction = "RIGHT";
+                    direction = Direction.RIGHT;
                 }
             }
         }
 
         // Function to move the snake based on the current direction
-        static void MoveSnake(ref SnakeHead head, string direction)
+        static void MoveSnake(ref SnakeHead head, Direction direction)
         {
             switch (direction)
             {
-                case "UP":
+                case Direction.UP:
                     head.Y--;
                     break;
-                case "DOWN":
+                case Direction.DOWN:
                     head.Y++;
                     break;
-                case "LEFT":
+                case Direction.LEFT:
                     head.X--;
                     break;
-                case "RIGHT":
+                case Direction.RIGHT:
                     head.X++;
                     break;
             }
