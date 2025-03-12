@@ -13,3 +13,9 @@ public enum GameState
     Running,
     Over
 }
+
+public enum BerryType
+{
+    Regular,
+    Poison
+}
