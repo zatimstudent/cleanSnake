@@ -8,7 +8,7 @@ namespace Snake
         {
             WindowHeight = 16;
             WindowWidth = 32;
-            
+
             var game = new Game(WindowWidth, WindowHeight);
             game.Run();
         }
