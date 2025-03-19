@@ -6,12 +6,27 @@ public class SnakeGame
     private readonly SnakeHead _head;
     private readonly List<int> _bodyXPositions;
     private readonly List<int> _bodyYPositions;
-    private Position _berry;
+    private readonly List<Berry> _berries;
     private Direction _currentDirection;
     private GameState _gameState;
     private int _score;
     private readonly Random _random;
 
+    public int Score
+    {
+        get { return _score; }
+    }
+    
+    public void UpdateScore(int points)
+    {
+        _score += points;
+        
+        if (_score < 0)
+        {
+            _score = 0;
+        }
+    }
+    
     public SnakeGame(int width, int height)
     {
         _board = new GameBoard(width, height);
@@ -24,7 +39,11 @@ public class SnakeGame
         _bodyXPositions = new List<int>();
         _bodyYPositions = new List<int>();
         _random = new Random();
-        _berry = GenerateNewBerryPosition();
+        _berries = new List<Berry>
+        {
+            GenerateNewBerry(BerryType.Regular),
+            GenerateNewBerry(BerryType.Poison)
+        };
         _currentDirection = Direction.RIGHT;
         _gameState = GameState.Running;
         _score = 5;
@@ -39,6 +58,18 @@ public class SnakeGame
         };
     }
 
+    private Berry GenerateNewBerry(BerryType berryType)
+    {
+        Position newPosition = GenerateNewBerryPosition();
+
+        return berryType switch
+        {
+            BerryType.Poison => new PoisonBerry(newPosition),
+            BerryType.Regular => new RegularBerry(newPosition),
+            _ => throw new ArgumentOutOfRangeException(nameof(berryType), berryType, null)
+        };
+    }
+    
     public void Update()
     {
         Console.Clear();
@@ -58,17 +89,24 @@ public class SnakeGame
 
     private void DrawBerry()
     {
-        Console.SetCursorPosition(_berry.X, _berry.Y);
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("■");
+        foreach (var berry in _berries)
+        {
+            berry.Draw();
+        }
     }
 
     private void CheckBerryCollision()
     {
-        if (_berry.X == _head.X && _berry.Y == _head.Y)
+        for (int i = 0; i < _berries.Count; i++)
         {
-            _score++;
-            _berry = GenerateNewBerryPosition();
+            if (_berries[i].IsCollision(_head))
+            {
+                _berries[i].ApplyEffect(this);
+                _berries.RemoveAt(i);
+                _berries.Add(GenerateNewBerry(BerryType.Poison));
+                _berries.Add(GenerateNewBerry(BerryType.Regular));
+                break;
+            }
         }
     }
 
@@ -82,8 +120,7 @@ public class SnakeGame
                 return;
             }
         }
-
-
+        
         _bodyXPositions.Add(_head.X);
         _bodyYPositions.Add(_head.Y);
 
@@ -133,8 +170,7 @@ public class SnakeGame
     {
         switch (_currentDirection)
         {
-            case Direction
-.UP:
+            case Direction.UP:
                 _head.Y--;
                 break;
             case Direction.DOWN:
