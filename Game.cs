@@ -39,11 +39,11 @@ namespace Snake
             {
                 Clear();
 
-                gameover |= (head.XPos == WindowWidth - 1 || head.XPos == 0 || head.YPos == WindowHeight - 1 || head.YPos == 0);
+                gameover |= IsWallCollision(head);
 
                 Renderer.DrawBorder(WindowWidth, WindowHeight);
 
-                if (currentBerry.XPos == head.XPos && currentBerry.YPos == head.YPos)
+                if (currentBerry.GetPixel().Equals(head))
                 {
                     // Volání OnEaten pro zpracování efektu bobule
                     currentBerry.OnEaten(this);
@@ -54,7 +54,8 @@ namespace Snake
                 for (int i = 0; i < body.Count; i++)
                 {
                     Renderer.DrawPixel(body[i]);
-                    gameover |= (body[i].XPos == head.XPos && body[i].YPos == head.YPos);
+                    gameover |= body[i].Equals(head);
+
                 }
 
                 if (gameover)
@@ -148,5 +149,12 @@ namespace Snake
 
             return movement;
         }
+        
+        private bool IsWallCollision(Pixel pixel)
+        {
+            return pixel.XPos == 0 || pixel.XPos == WindowWidth - 1
+                                   || pixel.YPos == 0 || pixel.YPos == WindowHeight - 1;
+        }
+
     }
 }
