@@ -48,8 +48,7 @@ namespace Snake
                     // Volání OnEaten pro zpracování efektu bobule
                     currentBerry.OnEaten(this);
                     // Vytvoření nové bobule
-                    currentBerry = berryFactory.CreateBerry(BerryType.Regular,WindowWidth, WindowHeight);
-                    currentBerry = berryFactory.CreateBerry(BerryType.Regular,WindowWidth, WindowHeight);
+                    currentBerry = berryFactory.CreateDefinedBerry(BerryType.Regular, WindowWidth, WindowHeight);
                 }
 
                 for (int i = 0; i < body.Count; i++)

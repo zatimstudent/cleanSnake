@@ -1,14 +1,19 @@
-namespace Snake;
+using System;
 
-public class RegularBerry : Berry
+namespace Snake
 {
-    public RegularBerry(Position position) : base(position)
+    public class RegularBerry : AbstractBerry
     {
-        Color = ConsoleColor.Cyan;
-    }
-    
-    public override void ApplyEffect(SnakeGame game)
-    {
-        game.UpdateScore(1);
+        public override ConsoleColor Color => ConsoleColor.Cyan;
+        
+        public RegularBerry(int xPos, int yPos) : base(xPos, yPos)
+        {
+        }
+        
+        public override void OnEaten(Game game)
+        {
+            // Zvýšení skóre, přidání segmentu k hadovi
+            game.IncreaseScore(1);
+        }
     }
 }

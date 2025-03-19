@@ -36,7 +36,7 @@ public class BerryFactory
     }
     
     // Metoda pro vytvoření konkrétního typu bobule na náhodné pozici
-    public IBerry CreateRandomBerry(BerryType type, int maxWidth, int maxHeight)
+    public IBerry CreateDefinedBerry(BerryType type, int maxWidth, int maxHeight)
     {
         int xPos = random.Next(1, maxWidth - 2);
         int yPos = random.Next(1, maxHeight - 2);

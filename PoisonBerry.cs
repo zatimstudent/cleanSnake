@@ -1,15 +1,19 @@
-namespace Snake;
+using System;
 
-public class PoisonBerry : Berry
+namespace Snake
 {
-    public PoisonBerry(Position position) : base(position)
+    public class PoisonBerry : AbstractBerry
     {
-        Color = ConsoleColor.Green;
-        Symbol = '♦';
-    }
-    
-    public override void ApplyEffect(SnakeGame game)
-    {
-        game.UpdateScore(-2);
+        public override ConsoleColor Color => ConsoleColor.Magenta;
+        
+        public PoisonBerry(int xPos, int yPos) : base(xPos, yPos)
+        {
+        }
+        
+        public override void OnEaten(Game game)
+        {
+            game.DecreaseScore(2);
+            // game.EndGame();
+        }
     }
 }
