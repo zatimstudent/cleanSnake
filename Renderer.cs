@@ -1,4 +1,3 @@
-
 using static System.Console;
 
 namespace Snake
@@ -33,7 +32,7 @@ namespace Snake
                 Write("■");
             }
         }
-        
+
         public static void ShowGameOver(int score, int width, int height)
         {
             SetCursorPosition(width / 5, height / 2);

@@ -12,12 +12,17 @@ namespace Snake
         private Random rand;
         private int score;
         private Pixel head;
-        private IBerry currentBerry;
+
+        private List<IBerry> berries;
+
         private List<Pixel> body;
         private Direction currentMovement;
         private bool gameover;
         private BerryFactory berryFactory;
         private string gameOverReason;
+
+        private int poisonSpawnCounter;
+        private int poisonSpawnThreshold;
 
         public Game(int width, int height)
         {
@@ -27,7 +32,15 @@ namespace Snake
             score = 5;
             head = new Pixel(WindowWidth / 2, WindowHeight / 2, ConsoleColor.Red);
             berryFactory = new BerryFactory();
-            currentBerry = berryFactory.CreateRandomBerry(WindowWidth, WindowHeight);
+
+            berries = new List<IBerry>();
+            berries.Add(
+                berryFactory.CreateDefinedBerry(BerryType.Regular, WindowWidth, WindowHeight)
+            );
+
+            poisonSpawnCounter = 0;
+            poisonSpawnThreshold = rand.Next(1, 6);
+
             body = new List<Pixel>();
             currentMovement = Direction.Right;
             gameover = false;
@@ -39,31 +52,80 @@ namespace Snake
             {
                 Clear();
 
-                gameover |= (head.XPos == WindowWidth - 1 || head.XPos == 0 || head.YPos == WindowHeight - 1 || head.YPos == 0);
+                gameover |= (
+                    head.XPos == WindowWidth - 1
+                    || head.XPos == 0
+                    || head.YPos == WindowHeight - 1
+                    || head.YPos == 0
+                );
 
                 Renderer.DrawBorder(WindowWidth, WindowHeight);
-
-                if (currentBerry.XPos == head.XPos && currentBerry.YPos == head.YPos)
-                {
-                    // Volání OnEaten pro zpracování efektu bobule
-                    currentBerry.OnEaten(this);
-                    // Vytvoření nové bobule
-                    currentBerry = berryFactory.CreateDefinedBerry(BerryType.Regular, WindowWidth, WindowHeight);
-                }
 
                 for (int i = 0; i < body.Count; i++)
                 {
                     Renderer.DrawPixel(body[i]);
-                    gameover |= (body[i].XPos == head.XPos && body[i].YPos == head.YPos);
+                    if (body[i].XPos == head.XPos && body[i].YPos == head.YPos)
+                    {
+                        gameover = true;
+                    }
                 }
 
                 if (gameover)
-                {
                     break;
+
+                for (int i = 0; i < berries.Count; i++)
+                {
+                    IBerry berry = berries[i];
+                    Renderer.DrawPixel(berry.GetPixel());
+
+                    if (berry.XPos == head.XPos && berry.YPos == head.YPos)
+                    {
+                        berry.OnEaten(this);
+
+                        berries.Clear();
+
+                        if (berry is RegularBerry)
+                        {
+                            berries.Add(
+                                berryFactory.CreateDefinedBerry(
+                                    BerryType.Regular,
+                                    WindowWidth,
+                                    WindowHeight
+                                )
+                            );
+                            poisonSpawnCounter++;
+
+                            if (poisonSpawnCounter >= poisonSpawnThreshold)
+                            {
+                                berries.Add(
+                                    berryFactory.CreateDefinedBerry(
+                                        BerryType.Poison,
+                                        WindowWidth,
+                                        WindowHeight
+                                    )
+                                );
+                                poisonSpawnCounter = 0;
+                                poisonSpawnThreshold = rand.Next(1, 6);
+                            }
+                        }
+                        else if (berry is PoisonBerry)
+                        {
+                            berries.Add(
+                                berryFactory.CreateDefinedBerry(
+                                    BerryType.Regular,
+                                    WindowWidth,
+                                    WindowHeight
+                                )
+                            );
+                        }
+                        break;
+                    }
                 }
 
+                if (gameover)
+                    break;
+
                 Renderer.DrawPixel(head);
-                Renderer.DrawPixel(currentBerry.GetPixel());
 
                 var sw = Stopwatch.StartNew();
                 while (sw.ElapsedMilliseconds <= 700)
@@ -94,7 +156,7 @@ namespace Snake
                     body.RemoveAt(0);
                 }
             }
-            
+
             Renderer.ShowGameOver(score, WindowWidth, WindowHeight);
             ReadKey();
         }
@@ -108,14 +170,13 @@ namespace Snake
         {
             score -= amount;
 
-            // Když skóre klesne pod 0, ukončíme hru
             if (score < 0)
             {
-                score = 0; // Nastavíme skóre na 0, aby se zobrazilo při game over
+                score = 0;
                 EndGame("You died to poison");
             }
         }
-        
+
         public void EndGame(string reason = null)
         {
             gameover = true;
@@ -145,7 +206,6 @@ namespace Snake
                     movement = Direction.Right;
                 }
             }
-
             return movement;
         }
     }
